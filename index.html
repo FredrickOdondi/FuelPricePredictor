@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crude Oil to Fuel Price Calculator</title>
+    <script>
+        async function calculatePrices() {
+            const crudeOilPrice = document.getElementById('crude').value;
+
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ crudeOilPrice })
+            });
+
+            const data = await response.json();
+
+            document.getElementById('dieselPrice').innerText = `$${data.dieselPrice}`;
+            document.getElementById('petrolPrice').innerText = `$${data.petrolPrice}`;
+            document.getElementById('paraffinPrice').innerText = `$${data.paraffinPrice}`;
+        }
+    </script>
+</head>
+<body>
+    <main style="text-align: center; font-family: Arial, sans-serif; margin: 20px;">
+        <h1>Crude Oil to Fuel Price Calculator</h1>
+
+        <label for="crude" style="font-weight: bold; display: block; margin-bottom: 10px;">
+            Enter Daily Crude Oil Price (USD):
+        </label>
+        <input id="crude" type="number" style="margin-bottom: 20px; padding: 10px; font-size: 1rem;">
+        <button onclick="calculatePrices()" style="padding: 10px 20px; font-size: 1rem; margin-top: 10px;">
+            Calculate
+        </button>
+
+        <h2 style="margin-top: 20px;">Calculated Prices (USD):</h2>
+        <p><strong>Diesel:</strong> <span id="dieselPrice">$0.00</span></p>
+        <p><strong>Petrol:</strong> <span id="petrolPrice">$0.00</span></p>
+        <p><strong>Paraffin:</strong> <span id="paraffinPrice">$0.00</span></p>
+    </main>
+</body>
+</html>
