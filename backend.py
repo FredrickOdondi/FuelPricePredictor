@@ -1,31 +1,33 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
+import boto3
+import json
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# AWS SageMaker client
+sagemaker_client = boto3.client('sagemaker-runtime', region_name='your-region')
 
-@app.route('/calculate', methods=['POST'])
-def calculate():
-    data = request.json
-    crude_oil_price = float(data['crudeOilPrice'])
-    
-    # Example conversion rates (adjust as necessary)
-    diesel_ratio = 0.12
-    petrol_ratio = 0.15
-    paraffin_ratio = 0.1
+# Endpoint name
+SAGEMAKER_ENDPOINT = "your-sagemaker-endpoint-name"
 
-    # Calculate the prices
-    diesel_price = round(crude_oil_price * diesel_ratio, 2)
-    petrol_price = round(crude_oil_price * petrol_ratio, 2)
-    paraffin_price = round(crude_oil_price * paraffin_ratio, 2)
-
-    return jsonify({
-        'dieselPrice': diesel_price,
-        'petrolPrice': petrol_price,
-        'paraffinPrice': paraffin_price
-    })
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        data = request.json  # Get data from the frontend
+        payload = json.dumps(data)  # Convert data to JSON string
+        
+        # Invoke SageMaker endpoint
+        response = sagemaker_client.invoke_endpoint(
+            EndpointName=SAGEMAKER_ENDPOINT,
+            ContentType='application/json',
+            Body=payload
+        )
+        
+        # Decode response
+        result = json.loads(response['Body'].read().decode())
+        return jsonify({"prediction": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

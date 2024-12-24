@@ -113,23 +113,32 @@
         <p><i class="fas fa-lightbulb price-icon"></i><strong>Paraffin:</strong> <span id="paraffinPrice">$0.00</span></p>
     </main>
     <script>
-        async function calculatePrices() {
-            const crudeOilPrice = document.getElementById('crude').value;
+       async function getPrediction(data) {
+    try {
+        const response = await fetch("https://your-backend-api-url/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
 
-            if (!crudeOilPrice) {
-                alert("Please enter a valid crude oil price.");
-                return;
-            }
-
-            // Dummy data for the sake of this demo
-            const dieselPrice = (crudeOilPrice * 0.12).toFixed(2);
-            const petrolPrice = (crudeOilPrice * 0.15).toFixed(2);
-            const paraffinPrice = (crudeOilPrice * 0.1).toFixed(2);
-
-            document.getElementById('dieselPrice').innerText = `$${dieselPrice}`;
-            document.getElementById('petrolPrice').innerText = `$${petrolPrice}`;
-            document.getElementById('paraffinPrice').innerText = `$${paraffinPrice}`;
+        if (!response.ok) {
+            throw new Error("Failed to fetch predictions.");
         }
+
+        const result = await response.json();
+        console.log("Prediction:", result.prediction);
+        return result.prediction;
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+// Example usage
+const inputData = { feature1: 1.2, feature2: 3.4 };
+getPrediction(inputData);
+
     </script>
 </body>
 </html>
